@@ -1,0 +1,28 @@
+//@version=4
+strategy("Keltner bounce from border. No repaint. (by Zelibobla)", shorttitle="Keltner border bounce", overlay=true)
+
+// Zaman dilimine erişmek için security() fonksiyonunu kullan
+// varsayılan olarak 1 saatlik zaman dilimini kullanalım
+res = input("60", title="Zaman Dilimi")
+price = security(syminfo.tickerid, res, close)
+
+// Keltner kanalı parametrelerini belirle
+keltnerLength = input(defval=200, minval=1, title="Keltner EMA Period Length")
+keltnerATRLength = input(defval=200, minval=1, title="Keltner ATR Period Length (the same as EMA length in classic Keltner Channels)")
+keltnerDeviation = input(defval=8, minval=1, maxval=15, title="Keltner band width (in ATRs)")
+closeOnEMATouch = input(type=input.bool, defval=false, title="Close trade on EMA touch? (less drawdown, but less profit and higher commissions impact)")
+enterOnBorderTouchFromInside = input(type=input.bool, defval=false, title="Enter on border touch from inside? (by default from outside, which is less risky but less profitable)")
+
+
+// Keltner kanalını hesapla
+EMA = sma(price, keltnerLength)
+ATR = atr(keltnerATRLength)
+top = EMA + ATR * keltnerDeviation
+bottom = EMA - ATR * keltnerDeviation
+
+
+// Göstergeleri çiz
+plot(EMA, color=color.aqua, title="EMA")
+p1 = plot(top, color=color.silver, title="Keltner top")
+p2 = plot(bottom, color=color.silver, title="Keltner bottom")
+fill(p1, p2)
